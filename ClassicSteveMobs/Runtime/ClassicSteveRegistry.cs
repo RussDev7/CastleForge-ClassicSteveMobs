@@ -23,8 +23,10 @@ namespace ClassicSteveMobs
     {
         #region Constants
 
-        public const EnemyTypeEnum ClassicSteveEnemyType = EnemyTypeEnum.TREASURE_ZOMBIE;
-
+        public static EnemyTypeEnum ClassicSteveEnemyType
+        {
+            get { return ClassicSteveSettings.ActiveEnemyType; }
+        }
         #endregion
 
         #region Public API
@@ -66,7 +68,7 @@ namespace ClassicSteveMobs
                 steveType.ChanceOfBulletStrike  = 1f;
 
                 if (newlyRegistered)
-                    Log("Registered TREASURE_ZOMBIE as the classic Steve test mob with random wander AI.");
+                    Log($"Registered {ClassicSteveEnemyType} as the classic Steve test mob with random wander AI.");
             }
             catch (Exception ex)
             {

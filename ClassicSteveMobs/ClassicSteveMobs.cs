@@ -185,7 +185,7 @@ namespace ClassicSteveMobs
 
                     case "info":
                         SendFeedback($"Enabled={ClassicSteveSettings.Enabled}, NaturalSpawns={ClassicSteveSettings.NaturalSpawns}, Chance={ClassicSteveSettings.NaturalSpawnChance:0.###}, Scale={ClassicSteveSettings.ModelScale:0.###}.");
-                        SendFeedback("Uses EnemyTypeEnum.TREASURE_ZOMBIE as the test slot.");
+                        SendFeedback($"EnemyType={ClassicSteveRegistry.ClassicSteveEnemyType}, VanillaSafeMode={ClassicSteveSettings.VanillaSafeMode}.");
                         break;
 
                     default:

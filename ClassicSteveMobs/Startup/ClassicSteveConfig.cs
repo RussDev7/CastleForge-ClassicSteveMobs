@@ -6,6 +6,7 @@ This file is part of https://github.com/RussDev7/CastleForge - see LICENSE for d
 
 using System.Collections.Generic;
 using System.Globalization;
+using DNA.CastleMinerZ.AI;
 using System.IO;
 using System;
 
@@ -43,6 +44,15 @@ namespace ClassicSteveMobs
         public static float ModelScale       = 0.065f;
         public static float AnimationSpeed   = 10f;
         public static float YawOffsetDegrees = 0f;
+
+        public static EnemyTypeEnum CustomEnemyType      = EnemyTypeEnum.TREASURE_ZOMBIE;
+        public static bool          VanillaSafeMode      = false;
+        public static EnemyTypeEnum VanillaSafeEnemyType = EnemyTypeEnum.ZOMBIE_0_0;
+
+        public static EnemyTypeEnum ActiveEnemyType
+        {
+            get { return VanillaSafeMode ? VanillaSafeEnemyType : CustomEnemyType; }
+        }
     }
     #endregion
 
@@ -102,6 +112,19 @@ namespace ClassicSteveMobs
                 ClassicSteveSettings.AnimationSpeed   = Clamp(ini.GetFloat("Rendering", "AnimationSpeed", 10f), 0f, 100f);
                 ClassicSteveSettings.YawOffsetDegrees = ini.GetFloat("Rendering", "YawOffsetDegrees", 0f);
 
+                ClassicSteveSettings.CustomEnemyType = ParseEnemyType(
+                    ini.GetString("EnemyType", "CustomEnemyType", "TREASURE_ZOMBIE"),
+                    EnemyTypeEnum.TREASURE_ZOMBIE);
+
+                ClassicSteveSettings.VanillaSafeMode = ini.GetBool(
+                    "EnemyType",
+                    "VanillaSafeMode",
+                    false);
+
+                ClassicSteveSettings.VanillaSafeEnemyType = ParseEnemyType(
+                    ini.GetString("EnemyType", "VanillaSafeEnemyType", "ZOMBIE"),
+                    EnemyTypeEnum.ZOMBIE_0_0);
+
                 ReloadConfigHotkey = ini.GetString("Hotkeys", "ReloadConfig", "Ctrl+Shift+R");
                 CSMHotkeys.SetReloadBinding(ReloadConfigHotkey);
             }
@@ -141,6 +164,17 @@ namespace ClassicSteveMobs
                 "; Distance in front of the local player for /spawnsteve.",
                 "CommandSpawnDistance = 5",
                 "",
+                "[EnemyType]",
+                "; Main custom enemy slot used for full modded-session testing.",
+                "; TREASURE_ZOMBIE is the default because it exists but is normally unused.",
+                "CustomEnemyType = TREASURE_ZOMBIE",
+                "",
+                "; Vanilla-safe mode uses an existing vanilla enemy enum such as ZOMBIE.",
+                "; This prevents vanilla clients from receiving an unknown/unregistered enemy slot.",
+                "; Warning: using ZOMBIE can make modded clients/host treat normal zombies as Steve mobs.",
+                "VanillaSafeMode = false",
+                "VanillaSafeEnemyType = ZOMBIE",
+                "",
                 "[EnemyStats]",
                 "; Low test health to match early-game/simple mob behavior.",
                 "Health          = 2",
@@ -176,10 +210,38 @@ namespace ClassicSteveMobs
                 "ReloadConfig = Ctrl+Shift+R",
             });
         }
-
+        
+        /// <summary>
+        /// Clamps an integer value between the provided minimum and maximum bounds.
+        /// </summary>
         private static int Clamp(int v, int lo, int hi) => v < lo ? lo : (v > hi ? hi : v);
+
+        /// <summary>
+        /// Clamps a floating-point value between the provided minimum and maximum bounds.
+        /// </summary>
         private static float Clamp(float v, float lo, float hi) => v < lo ? lo : (v > hi ? hi : v);
 
+        /// <summary>
+        /// Parses an enemy type from config using either an EnemyTypeEnum name or numeric value.
+        /// Falls back to the provided default when the value is missing, invalid, or unknown.
+        /// </summary>
+        private static EnemyTypeEnum ParseEnemyType(string value, EnemyTypeEnum fallback)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return fallback;
+
+            if (Enum.TryParse(value.Trim(), true, out EnemyTypeEnum parsed))
+                return parsed;
+
+            if (int.TryParse(value.Trim(), out int numeric) &&
+                Enum.IsDefined(typeof(EnemyTypeEnum), numeric))
+            {
+                return (EnemyTypeEnum)numeric;
+            }
+
+            ModLoader.LogSystem.Log($"[CSMobs] Unknown EnemyTypeEnum \"{value}\". Using {fallback}.");
+            return fallback;
+        }
         #endregion
     }
     #endregion
