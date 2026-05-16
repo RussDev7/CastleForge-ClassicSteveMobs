@@ -102,7 +102,7 @@ namespace ClassicSteveMobs
                 ClassicSteveSettings.AnimationSpeed   = Clamp(ini.GetFloat("Rendering", "AnimationSpeed", 10f), 0f, 100f);
                 ClassicSteveSettings.YawOffsetDegrees = ini.GetFloat("Rendering", "YawOffsetDegrees", 0f);
 
-                ReloadConfigHotkey = ini.GetString("Hotkeys", "ReloadConfig", "Ctrl+Shift+F3");
+                ReloadConfigHotkey = ini.GetString("Hotkeys", "ReloadConfig", "Ctrl+Shift+R");
                 CSMHotkeys.SetReloadBinding(ReloadConfigHotkey);
             }
             catch (Exception ex)
