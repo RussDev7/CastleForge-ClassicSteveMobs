@@ -6,8 +6,8 @@
 **Current mod version shown in source:** `0.0.1.0`
 
 <p align="center">
-  <img src="_Images/ClassicSteveMobs/Showcase1.gif" alt="Circle Mode" width="49%" />
-  <img src="_Images/ClassicSteveMobs/Showcase2.gif" alt="Square mode" width="49%" />
+  <img src="ClassicSteveMobs/_Images/Showcase1.gif" alt="Circle Mode" width="49%" />
+  <img src="ClassicSteveMobs/_Images/Showcase2.gif" alt="Square mode" width="49%" />
 </p>
 
 ---
