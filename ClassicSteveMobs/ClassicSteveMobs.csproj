@@ -89,7 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Embedded\0Harmony.dll" />
-    <EmbeddedResource Include="Textures\char.png" />
+    <EmbeddedResource Include="ClassicSteveMobs\Textures\char.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ModLoaderFramework\ModLoaderExtensions\ModLoaderExtensions.csproj">

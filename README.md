@@ -38,7 +38,9 @@ The goal is to make a goofy early-game creature that feels different from normal
 
 At its core, the mod:
 
-- registers the unused `EnemyTypeEnum.TREASURE_ZOMBIE` slot as a custom test mob,
+- registers a configurable `EnemyTypeEnum` slot as the classic Steve test mob,
+- defaults to `TREASURE_ZOMBIE` for full custom/modded-session testing,
+- can optionally use an existing vanilla enemy slot such as `ZOMBIE` for vanilla-safe multiplayer testing,
 - draws the mob as a simple six-part blocky character,
 - replaces normal zombie chasing with random wandering,
 - lets you spawn mobs directly with `/spawnsteve`,
@@ -54,8 +56,8 @@ This makes it useful as both a fun test mod and a working example for future cus
 
 ClassicSteveMobs is intentionally simple, but it demonstrates several important CastleForge modding ideas:
 
-- **Custom enemy slot registration**  
-  The mod reuses `TREASURE_ZOMBIE` as a test enemy slot instead of adding an unsafe new network enum value.
+- **Configurable enemy slot registration**  
+  The mod can use `TREASURE_ZOMBIE` as a full custom test enemy slot, or switch to an existing vanilla slot such as `ZOMBIE` for safer online testing with vanilla clients.
 
 - **Custom rendering without a skinned model pipeline**  
   The blocky mob is rendered with simple cuboid parts instead of requiring a full CMZ skinned XNB model with animation clips.
@@ -213,7 +215,9 @@ ClassicSteveMobs creates this config on first launch:
 
 ```ini
 ; ClassicSteveMobs - test rd-132328-style mob config
-; Uses EnemyTypeEnum.TREASURE_ZOMBIE as the custom test slot.
+; Uses a configurable EnemyTypeEnum slot.
+; Default custom slot: TREASURE_ZOMBIE.
+; Optional vanilla-safe slot: ZOMBIE.
 
 [ClassicSteveMobs]
 ; Master toggle for patches, command spawning, and natural spawning.
@@ -224,6 +228,17 @@ NaturalSpawns        = false
 NaturalSpawnChance   = 0.02
 ; Distance in front of the local player for /spawnsteve.
 CommandSpawnDistance = 5
+
+[EnemyType]
+; Main custom enemy slot used for full modded-session testing.
+; TREASURE_ZOMBIE is the default because it exists but is normally unused.
+CustomEnemyType = TREASURE_ZOMBIE
+
+; Vanilla-safe mode uses an existing vanilla enemy enum such as ZOMBIE.
+; This helps avoid vanilla clients receiving an unknown/unregistered enemy slot.
+; Warning: using ZOMBIE can make modded clients/host treat normal zombies as Steve mobs.
+VanillaSafeMode = false
+VanillaSafeEnemyType = ZOMBIE
 
 [EnemyStats]
 ; Low test health to match early-game/simple mob behavior.
@@ -262,29 +277,45 @@ ReloadConfig = Ctrl+Shift+R
 
 ### Config reference
 
-| Section            | Key                       | Default        | What it controls                                                              |
-|--------------------|---------------------------|---------------:|-------------------------------------------------------------------------------|
-| `ClassicSteveMobs` | `Enabled`                 | `true`         | Master toggle for the mod                                                     |
-| `ClassicSteveMobs` | `NaturalSpawns`           | `false`        | Allows rare natural aboveground Steve spawns                                  |
-| `ClassicSteveMobs` | `NaturalSpawnChance`      | `0.02`         | Chance to replace an aboveground enemy spawn when natural spawning is enabled |
-| `ClassicSteveMobs` | `CommandSpawnDistance`    | `5`            | Distance in front of the player used by `/spawnsteve`                         |
-| `EnemyStats`       | `Health`                  | `2`            | Enemy health value                                                            |
-| `EnemyStats`       | `SpawnRadius`             | `20`           | Enemy spawn radius setting applied to the custom enemy type                   |
-| `EnemyStats`       | `DistanceLimit`           | `40`           | Distance limit before the enemy gives up/despawns                             |
-| `EnemyStats`       | `SlowSpeed`               | `1.75`         | Base wander movement speed                                                    |
-| `EnemyStats`       | `RandomSlowSpeed`         | `0.5`          | Extra randomized movement speed range                                         |
-| `EnemyStats`       | `FastSpeed`               | `3.0`          | Fast speed value retained on the enemy type                                   |
-| `EnemyStats`       | `HasRunFast`              | `false`        | Whether the enemy type reports fast-run support                               |
-| `Behavior`         | `WanderTurnIntervalMin`   | `0.5`          | Minimum seconds between random turn decisions                                 |
-| `Behavior`         | `WanderTurnIntervalMax`   | `2.0`          | Maximum seconds between random turn decisions                                 |
-| `Behavior`         | `WanderTurnAmountRadians` | `1.5`          | Maximum signed heading change on normal turns                                 |
-| `Behavior`         | `WanderJumpSpeed`         | `7.0`          | Upward velocity added when the mob hops                                       |
-| `Behavior`         | `WanderJumpCooldown`      | `0.35`         | Minimum time between jumps                                                    |
-| `Behavior`         | `WanderRandomJumpChance`  | `1.25`         | Per-second random jump chance while grounded                                  |
-| `Rendering`        | `ModelScale`              | `0.065`        | Visual scale of the blocky model                                              |
-| `Rendering`        | `AnimationSpeed`          | `10`           | Arm/leg swing animation speed                                                 |
-| `Rendering`        | `YawOffsetDegrees`        | `0`            | Extra yaw correction if the model faces the wrong way                         |
-| `Hotkeys`          | `ReloadConfig`            | `Ctrl+Shift+R` | Hotkey used to reload the INI while in game                                   |
+| Section            | Key                       | Default           | What it controls                                                               |
+|--------------------|---------------------------|------------------:|--------------------------------------------------------------------------------|
+| `ClassicSteveMobs` | `Enabled`                 | `true`            | Master toggle for the mod                                                      |
+| `ClassicSteveMobs` | `NaturalSpawns`           | `false`           | Allows rare natural aboveground Steve spawns                                   |
+| `ClassicSteveMobs` | `NaturalSpawnChance`      | `0.02`            | Chance to replace an aboveground enemy spawn when natural spawning is enabled  |
+| `ClassicSteveMobs` | `CommandSpawnDistance`    | `5`               | Distance in front of the player used by `/spawnsteve`                          |
+| `EnemyStats`       | `Health`                  | `2`               | Enemy health value                                                             |
+| `EnemyStats`       | `SpawnRadius`             | `20`              | Enemy spawn radius setting applied to the custom enemy type                    |
+| `EnemyStats`       | `DistanceLimit`           | `40`              | Distance limit before the enemy gives up/despawns                              |
+| `EnemyStats`       | `SlowSpeed`               | `1.75`            | Base wander movement speed                                                     |
+| `EnemyStats`       | `RandomSlowSpeed`         | `0.5`             | Extra randomized movement speed range                                          |
+| `EnemyStats`       | `FastSpeed`               | `3.0`             | Fast speed value retained on the enemy type                                    |
+| `EnemyStats`       | `HasRunFast`              | `false`           | Whether the enemy type reports fast-run support                                |
+| `Behavior`         | `WanderTurnIntervalMin`   | `0.5`             | Minimum seconds between random turn decisions                                  |
+| `Behavior`         | `WanderTurnIntervalMax`   | `2.0`             | Maximum seconds between random turn decisions                                  |
+| `Behavior`         | `WanderTurnAmountRadians` | `1.5`             | Maximum signed heading change on normal turns                                  |
+| `Behavior`         | `WanderJumpSpeed`         | `7.0`             | Upward velocity added when the mob hops                                        |
+| `Behavior`         | `WanderJumpCooldown`      | `0.35`            | Minimum time between jumps                                                     |
+| `Behavior`         | `WanderRandomJumpChance`  | `1.25`            | Per-second random jump chance while grounded                                   |
+| `Rendering`        | `ModelScale`              | `0.065`           | Visual scale of the blocky model                                               |
+| `Rendering`        | `AnimationSpeed`          | `10`              | Arm/leg swing animation speed                                                  |
+| `Rendering`        | `YawOffsetDegrees`        | `0`               | Extra yaw correction if the model faces the wrong way                          |
+| `EnemyType`        | `CustomEnemyType`         | `TREASURE_ZOMBIE` | Enemy enum slot used for full custom/modded-session testing                    |
+| `EnemyType`        | `VanillaSafeMode`         | `false`           | Uses `VanillaSafeEnemyType` instead of `CustomEnemyType` when enabled          |
+| `EnemyType`        | `VanillaSafeEnemyType`    | `ZOMBIE_0_0`      | Existing vanilla enemy enum used for safer online testing with vanilla clients |
+| `Hotkeys`          | `ReloadConfig`            | `Ctrl+Shift+R`    | Hotkey used to reload the INI while in game                                    |
+
+### Enemy type modes
+
+ClassicSteveMobs supports two enemy-type modes.
+
+#### Full custom mode
+
+```ini
+[EnemyType]
+CustomEnemyType = TREASURE_ZOMBIE
+VanillaSafeMode = false
+VanillaSafeEnemyType = ZOMBIE
+```
 
 ### Hot-reload workflow
 
@@ -361,14 +392,25 @@ A value of `0.02` means roughly a 2% replacement chance when the patched abovegr
 
 ClassicSteveMobs is safest when **every player has the mod installed**.
 
-The mod reuses `EnemyTypeEnum.TREASURE_ZOMBIE` as a test slot. Modded clients know how to register and render that slot, but an unmodded client may not understand the custom behavior/rendering setup.
+By default, the mod uses `TREASURE_ZOMBIE` as its custom test enemy slot. This is useful for clean modded-session testing, but vanilla clients may not know how to register, render, or update that custom slot.
+
+For safer online testing with vanilla clients, enable vanilla-safe mode:
+
+```ini
+[EnemyType]
+VanillaSafeMode = true
+VanillaSafeEnemyType = ZOMBIE
+```
+
+This makes the mod use an existing vanilla enemy type such as `ZOMBIE`, which vanilla clients already understand.
 
 Recommended multiplayer usage:
 
-- Host and clients should all install the same version of the mod.
-- Keep `NaturalSpawns = false` until everyone has confirmed the mod loads correctly.
-- Use `/spawnsteve` for controlled testing before enabling natural spawns.
-- Avoid very large spawn batches on public or lower-end sessions.
+* For fully modded sessions, use `CustomEnemyType = TREASURE_ZOMBIE`.
+* For vanilla-safe testing, use `VanillaSafeMode = true`.
+* Keep `NaturalSpawns = false` until everyone has confirmed the mod loads correctly.
+* Use `/spawnsteve` for controlled testing before enabling natural spawns.
+* Avoid very large spawn batches on public or lower-end sessions.
 
 ---
 
@@ -378,15 +420,21 @@ ClassicSteveMobs works by patching a few focused points in the CMZ enemy/renderi
 
 ### Enemy slot
 
-The mod registers:
+The mod registers a configurable enemy enum slot as the classic Steve test mob slot.
+
+Default custom mode:
 
 ```text
 EnemyTypeEnum.TREASURE_ZOMBIE
 ```
 
-as the classic Steve test mob slot.
+Optional vanilla-safe mode:
 
-This is safer than inventing a brand-new enum value because CastleMiner Z serializes enemy types over the network as a small enum/byte-style value.
+```text
+EnemyTypeEnum.ZOMBIE
+```
+
+`TREASURE_ZOMBIE` is useful for clean custom enemy testing because it keeps the Steve mob separate from normal zombies. `ZOMBIE` is useful for safer online testing because vanilla clients already understand that enemy type.
 
 ### Enemy type
 
@@ -433,6 +481,9 @@ For multiple command spawns, the mod computes a square-ish grid using the total 
 - Multiplayer sessions should require all clients to install the mod.
 - The custom renderer is intentionally simple and does not use CMZ's skinned model animation system.
 - If the model faces backward, set `YawOffsetDegrees = 180` in the config.
+- `VanillaSafeMode = true` helps avoid unknown enemy-slot crashes, but using `ZOMBIE` may cause modded clients/hosts to treat normal zombies as Steve mobs.
+- Full custom mode should only be used when all players have the mod installed.
+- Vanilla-safe mode is a compatibility fallback, not a perfect per-enemy handshake system.
 
 ---
 

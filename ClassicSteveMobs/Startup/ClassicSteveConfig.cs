@@ -122,7 +122,7 @@ namespace ClassicSteveMobs
                     false);
 
                 ClassicSteveSettings.VanillaSafeEnemyType = ParseEnemyType(
-                    ini.GetString("EnemyType", "VanillaSafeEnemyType", "ZOMBIE"),
+                    ini.GetString("EnemyType", "VanillaSafeEnemyType", "ZOMBIE_0_0"),
                     EnemyTypeEnum.ZOMBIE_0_0);
 
                 ReloadConfigHotkey = ini.GetString("Hotkeys", "ReloadConfig", "Ctrl+Shift+R");
@@ -152,7 +152,9 @@ namespace ClassicSteveMobs
             File.WriteAllLines(ConfigPath, new[]
             {
                 "; ClassicSteveMobs - test rd-132328-style mob config",
-                "; Uses EnemyTypeEnum.TREASURE_ZOMBIE as the custom test slot.",
+                "; Uses a configurable EnemyTypeEnum slot.",
+                "; Default custom slot: TREASURE_ZOMBIE.",
+                "; Optional vanilla-safe slot: ZOMBIE_0_0.",
                 "",
                 "[ClassicSteveMobs]",
                 "; Master toggle for patches, command spawning, and natural spawning.",
@@ -171,9 +173,9 @@ namespace ClassicSteveMobs
                 "",
                 "; Vanilla-safe mode uses an existing vanilla enemy enum such as ZOMBIE.",
                 "; This prevents vanilla clients from receiving an unknown/unregistered enemy slot.",
-                "; Warning: using ZOMBIE can make modded clients/host treat normal zombies as Steve mobs.",
+                "; Warning: using ZOMBIE_0_0 can make modded clients/host treat normal zombies as Steve mobs.",
                 "VanillaSafeMode = false",
-                "VanillaSafeEnemyType = ZOMBIE",
+                "VanillaSafeEnemyType = ZOMBIE_0_0",
                 "",
                 "[EnemyStats]",
                 "; Low test health to match early-game/simple mob behavior.",
@@ -230,10 +232,16 @@ namespace ClassicSteveMobs
             if (string.IsNullOrWhiteSpace(value))
                 return fallback;
 
-            if (Enum.TryParse(value.Trim(), true, out EnemyTypeEnum parsed))
+            string trimmed = value.Trim();
+
+            // Friendly aliases for config readability/backward compatibility.
+            if (trimmed.Equals("ZOMBIE", StringComparison.OrdinalIgnoreCase))
+                return EnemyTypeEnum.ZOMBIE_0_0;
+
+            if (Enum.TryParse(trimmed, true, out EnemyTypeEnum parsed))
                 return parsed;
 
-            if (int.TryParse(value.Trim(), out int numeric) &&
+            if (int.TryParse(trimmed, out int numeric) &&
                 Enum.IsDefined(typeof(EnemyTypeEnum), numeric))
             {
                 return (EnemyTypeEnum)numeric;
