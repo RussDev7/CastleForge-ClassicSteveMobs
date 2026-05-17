@@ -112,11 +112,11 @@ namespace ClassicSteveMobs
                 ClassicSteveSettings.AnimationSpeed   = Clamp(ini.GetFloat("Rendering", "AnimationSpeed", 10f), 0f, 100f);
                 ClassicSteveSettings.YawOffsetDegrees = ini.GetFloat("Rendering", "YawOffsetDegrees", 0f);
 
-                ClassicSteveSettings.CustomEnemyType = ParseEnemyType(
+                ClassicSteveSettings.CustomEnemyType      = ParseEnemyType(
                     ini.GetString("EnemyType", "CustomEnemyType", "TREASURE_ZOMBIE"),
                     EnemyTypeEnum.TREASURE_ZOMBIE);
 
-                ClassicSteveSettings.VanillaSafeMode = ini.GetBool(
+                ClassicSteveSettings.VanillaSafeMode      = ini.GetBool(
                     "EnemyType",
                     "VanillaSafeMode",
                     false);
@@ -169,12 +169,12 @@ namespace ClassicSteveMobs
                 "[EnemyType]",
                 "; Main custom enemy slot used for full modded-session testing.",
                 "; TREASURE_ZOMBIE is the default because it exists but is normally unused.",
-                "CustomEnemyType = TREASURE_ZOMBIE",
+                "CustomEnemyType      = TREASURE_ZOMBIE",
                 "",
                 "; Vanilla-safe mode uses an existing vanilla enemy enum such as ZOMBIE.",
                 "; This prevents vanilla clients from receiving an unknown/unregistered enemy slot.",
                 "; Warning: using ZOMBIE_0_0 can make modded clients/host treat normal zombies as Steve mobs.",
-                "VanillaSafeMode = false",
+                "VanillaSafeMode      = false",
                 "VanillaSafeEnemyType = ZOMBIE_0_0",
                 "",
                 "[EnemyStats]",
